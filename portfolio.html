@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050505">
+  <title>Portfolio</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --background: #050505;
+      --surface: #0b0b0b;
+      --text: #f5f5f5;
+      --muted: #929292;
+      --border: rgba(255, 255, 255, 0.12);
+      --content-width: 1120px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--background);
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .page {
+      width: min(var(--content-width), calc(100% - 48px));
+      margin-inline: auto;
+    }
+
+    .section {
+      position: relative;
+      display: flex;
+      min-height: 66vh;
+      flex-direction: column;
+      justify-content: center;
+      padding-block: clamp(88px, 12vw, 156px);
+      border-bottom: 1px solid var(--border);
+      scroll-margin-top: 24px;
+    }
+
+    .section:first-child {
+      min-height: 82vh;
+    }
+
+    .section:last-child {
+      min-height: 58vh;
+      border-bottom: 0;
+    }
+
+    .section-heading {
+      max-width: 100%;
+      margin: 0;
+      font-size: clamp(3.1rem, 8vw, 7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: -0.075em;
+      background: linear-gradient(180deg, #ffffff 0%, #8c8c8c 56%, #050505 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      -webkit-text-stroke: 0.25px rgba(255, 255, 255, 0.25);
+    }
+
+    .section-description {
+      max-width: 680px;
+      margin: 24px 0 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.65vw, 1.2rem);
+      font-weight: 400;
+      line-height: 1.75;
+    }
+
+    .portfolio-section {
+      justify-content: flex-start;
+    }
+
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: clamp(36px, 5vw, 64px);
+    }
+
+    .portfolio-item {
+      position: relative;
+      display: block;
+      width: 100%;
+      padding: 0;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 4px;
+      background: linear-gradient(145deg, #151515, #080808 70%);
+      cursor: zoom-in;
+      isolation: isolate;
+    }
+
+    .portfolio-item::after {
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      border: 1px solid rgba(255, 255, 255, 0);
+      content: "";
+      pointer-events: none;
+      transition: border-color 220ms ease;
+    }
+
+    .portfolio-item img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transform: scale(1.001);
+      transition: opacity 220ms ease, transform 500ms cubic-bezier(.2, .7, .2, 1);
+    }
+
+    .portfolio-item img.is-loaded {
+      opacity: 1;
+    }
+
+    .portfolio-item:hover img {
+      transform: scale(1.035);
+    }
+
+    .portfolio-item:hover::after,
+    .portfolio-item:focus-visible::after {
+      border-color: rgba(255, 255, 255, 0.36);
+    }
+
+    .portfolio-item:focus-visible,
+    .lightbox-close:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 4px;
+    }
+
+    .lightbox {
+      position: fixed;
+      z-index: 1000;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 48px;
+      background: rgba(0, 0, 0, 0.94);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 200ms ease, visibility 200ms ease;
+    }
+
+    .lightbox.is-open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .lightbox-image {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: calc(100vh - 96px);
+      object-fit: contain;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 24px 100px rgba(0, 0, 0, 0.6);
+      transform: scale(0.97);
+      transition: transform 240ms cubic-bezier(.2, .7, .2, 1);
+    }
+
+    .lightbox.is-open .lightbox-image {
+      transform: scale(1);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 18px;
+      right: 22px;
+      display: grid;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      padding: 0;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 50%;
+      background: rgba(15, 15, 15, 0.8);
+      color: #fff;
+      font-size: 28px;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 180ms ease, border-color 180ms ease;
+    }
+
+    .lightbox-close:hover {
+      border-color: rgba(255, 255, 255, 0.6);
+      background: #1b1b1b;
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        width: calc(100% - 36px);
+      }
+
+      .section {
+        min-height: auto;
+        padding-block: 88px;
+      }
+
+      .section:first-child {
+        min-height: 76vh;
+      }
+
+      .portfolio-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .section-description {
+        margin-top: 18px;
+      }
+
+      .lightbox {
+        padding: 20px;
+      }
+
+      .lightbox-image {
+        max-height: calc(100vh - 72px);
+      }
+
+      .lightbox-close {
+        top: 12px;
+        right: 12px;
+        width: 40px;
+        height: 40px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .portfolio-grid {
+        gap: 8px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="section" id="section-1">
+      <h1 class="section-heading">моё портфолио</h1>
+      <p class="section-description">Мой псевдоним Skeers (Скирс). Я билдер, играю в Minecraft уже 10-й год. В этой игре меня всегда манило строительство. Поэтому, 3 с половиной года назад я начал профессионально этим увлекаться. Ниже можете ознакомиться с моими последними работами. Можете связаться со мной в моём Телеграм канале: @skeerstm . Пишите туда в личные сообщения канала.</p>
+    </section>
+
+    <section class="section portfolio-section" id="section-2">
+      <h2 class="section-heading">мои работы</h2>
+      <p class="section-description">Перед вами 6 моих последних работ. Некоторые - это выполнение заказов, а другие просто постройка в одиночном мире:</p>
+
+      <div class="portfolio-grid" aria-label="Портфолио">
+        <button class="portfolio-item" type="button" aria-label="Открыть работу 1">
+          <img src="assets/portfolio-01.jpg" alt="" loading="lazy">
+        </button>
+        <button class="portfolio-item" type="button" aria-label="Открыть работу 2">
+          <img src="assets/portfolio-02.jpg" alt="" loading="lazy">
+        </button>
+        <button class="portfolio-item" type="button" aria-label="Открыть работу 3">
+          <img src="assets/portfolio-03.jpg" alt="" loading="lazy">
+        </button>
+        <button class="portfolio-item" type="button" aria-label="Открыть работу 4">
+          <img src="assets/portfolio-04.jpg" alt="" loading="lazy">
+        </button>
+        <button class="portfolio-item" type="button" aria-label="Открыть работу 5">
+          <img src="assets/portfolio-05.jpg" alt="" loading="lazy">
+        </button>
+        <button class="portfolio-item" type="button" aria-label="Открыть работу 6">
+          <img src="assets/portfolio-06.jpg" alt="" loading="lazy">
+        </button>
+      </div>
+    </section>
+
+    <section class="section" id="section-3">
+      <h2 class="section-heading">прайс</h2>
+      <p class="section-description">По поводу прайса: точно установить конкретную цифру не могу. Всё зависит от сроков и от сложности работы. Также, вы можете сами предлагать бюджет.</p>
+    </section>
+
+    <section class="section" id="section-4">
+      <h2 class="section-heading">что я строю</h2>
+      <p class="section-description">Это важный раздел, потому что один раз мне заказывали огромные редстоун-механизмы, с которыми я не очень дружу. Поэтому сразу скажу, что что-то связанное с механизмами я не делаю. В основном - спавны и лобби для серверов, карты. Спасибо за внимание!</p>
+    </section>
+  </main>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true">
+    <button class="lightbox-close" id="lightbox-close" type="button" aria-label="Закрыть изображение">×</button>
+    <img class="lightbox-image" id="lightbox-image" alt="">
+  </div>
+
+  <script>
+    const portfolioItems = document.querySelectorAll('.portfolio-item');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = document.getElementById('lightbox-image');
+    const closeButton = document.getElementById('lightbox-close');
+    let previouslyFocusedElement = null;
+
+    portfolioItems.forEach((item) => {
+      const image = item.querySelector('img');
+
+      image.addEventListener('load', () => {
+        image.classList.add('is-loaded');
+      });
+
+      if (image.complete && image.naturalWidth > 0) {
+        image.classList.add('is-loaded');
+      }
+
+      item.addEventListener('click', () => {
+        if (!image.getAttribute('src')) return;
+
+        previouslyFocusedElement = item;
+        lightboxImage.src = image.src;
+        lightboxImage.alt = image.alt;
+        lightbox.classList.add('is-open');
+        lightbox.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        closeButton.focus();
+      });
+    });
+
+    function closeLightbox() {
+      if (!lightbox.classList.contains('is-open')) return;
+
+      lightbox.classList.remove('is-open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      lightboxImage.removeAttribute('src');
+
+      if (previouslyFocusedElement) {
+        previouslyFocusedElement.focus();
+      }
+    }
+
+    closeButton.addEventListener('click', closeLightbox);
+
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox) closeLightbox();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeLightbox();
+    });
+  </script>
+</body>
+</html>
